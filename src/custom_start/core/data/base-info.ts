@@ -85,7 +85,7 @@ export const INITIAL_REINCARNATION_POINTS = 1000;
 export const ATTRIBUTES: (keyof Attributes)[] = ['力量', '敏捷', '体质', '智力', '精神'];
 
 // 等级相关常量
-export const MAX_LEVEL = 10;
+export const MAX_LEVEL = 25;
 export const MIN_LEVEL = 1;
 
 // 基础点常量

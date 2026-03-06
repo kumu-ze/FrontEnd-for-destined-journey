@@ -68,6 +68,10 @@ export const useCharacterStore = defineStore('character', () => {
   const selectedPartners = ref<Partner[]>([]);
   const selectedBackground = ref<Background | null>(null);
 
+  // 自定义上限
+  const customMaxBP = ref(MAX_BASE_POINTS_TOTAL);
+  const customMaxPerAttr = ref(MAX_BASE_POINTS_PER_ATTR);
+
   // Computed
 
   /**
@@ -108,7 +112,7 @@ export const useCharacterStore = defineStore('character', () => {
 
   // 基础点操作
   const addBasePoint = (attr: keyof Attributes) => {
-    if (remainingBP.value > 0 && character.value.basePoints[attr] < MAX_BASE_POINTS_PER_ATTR) {
+    if (remainingBP.value > 0 && character.value.basePoints[attr] < customMaxPerAttr.value) {
       character.value.basePoints[attr]++;
     }
   };
@@ -136,6 +140,18 @@ export const useCharacterStore = defineStore('character', () => {
     const newPoints = generateInitialPoints(character.value.name);
     character.value.reincarnationPoints = newPoints;
     return newPoints;
+  };
+
+  const setReincarnationPoints = (points: number) => {
+    character.value.reincarnationPoints = Math.max(0, points);
+  };
+
+  const setMaxBasePointsTotal = (val: number) => {
+    customMaxBP.value = Math.max(0, val);
+  };
+
+  const setMaxBasePointsPerAttr = (val: number) => {
+    customMaxPerAttr.value = Math.max(0, val);
   };
 
   const resetCharacter = () => {
@@ -257,7 +273,7 @@ export const useCharacterStore = defineStore('character', () => {
 
   // 基础点相关计算
   const usedBP = computed(() => _.sum(_.values(character.value.basePoints)));
-  const maxBP = computed(() => MAX_BASE_POINTS_TOTAL);
+  const maxBP = computed(() => customMaxBP.value);
   const remainingBP = computed(() => maxBP.value - usedBP.value);
 
   // 额外点相关计算
@@ -348,6 +364,8 @@ export const useCharacterStore = defineStore('character', () => {
     maxAP,
     remainingAP,
     finalAttributes,
+    customMaxBP,
+    customMaxPerAttr,
 
     updateCharacterField,
     updateAttribute,
@@ -356,6 +374,9 @@ export const useCharacterStore = defineStore('character', () => {
     addAttributePoint,
     removeAttributePoint,
     rollInitialPoints,
+    setReincarnationPoints,
+    setMaxBasePointsTotal,
+    setMaxBasePointsPerAttr,
     resetCharacter,
     addEquipment,
     removeEquipment,

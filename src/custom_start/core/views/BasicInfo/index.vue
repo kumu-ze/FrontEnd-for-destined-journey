@@ -17,15 +17,22 @@ import {
   getRaceCosts,
   getStartLocationsCascader,
   getTierAttributeBonus,
-  MAX_BASE_POINTS_PER_ATTR,
   MAX_LEVEL,
   MIN_LEVEL,
 } from '../../data/base-info';
 import { useCharacterStore } from '../../store';
 
 const characterStore = useCharacterStore();
-const { character } = storeToRefs(characterStore);
-const { addBasePoint, removeBasePoint, addAttributePoint, removeAttributePoint } = characterStore;
+const { character, customMaxBP, customMaxPerAttr } = storeToRefs(characterStore);
+const {
+  addBasePoint,
+  removeBasePoint,
+  addAttributePoint,
+  removeAttributePoint,
+  setReincarnationPoints,
+  setMaxBasePointsTotal,
+  setMaxBasePointsPerAttr,
+} = characterStore;
 
 // 从外部数据获取选项列表
 const genders = getGenders;
@@ -86,6 +93,19 @@ const levelTierName = computed(() => {
             <FormNumber v-model="character.level" :min="MIN_LEVEL" :max="MAX_LEVEL" />
             <span class="level-indicator">{{ levelTierName }}</span>
           </div>
+        </div>
+      </div>
+
+      <!-- 转生点数 -->
+      <div class="form-row full-width">
+        <div class="form-field">
+          <FormLabel label="转生点数" required />
+          <FormNumber
+            :model-value="character.reincarnationPoints"
+            :min="0"
+            :max="9999999"
+            @update:model-value="setReincarnationPoints($event)"
+          />
         </div>
       </div>
 
@@ -174,8 +194,23 @@ const levelTierName = computed(() => {
                 }"
                 >{{ characterStore.remainingBP }}</strong
               >
-              / {{ characterStore.maxBP }}
-              <span class="points-hint">（单项≤{{ MAX_BASE_POINTS_PER_ATTR }}）</span>
+              /
+              <FormNumber
+                :model-value="customMaxBP"
+                :min="0"
+                :max="9999"
+                class="inline-number"
+                @update:model-value="setMaxBasePointsTotal($event)"
+              />
+              <span class="points-hint">
+                （单项≤<FormNumber
+                  :model-value="customMaxPerAttr"
+                  :min="0"
+                  :max="9999"
+                  class="inline-number"
+                  @update:model-value="setMaxBasePointsPerAttr($event)"
+                />）
+              </span>
             </span>
             <span v-if="characterStore.maxAP > 0" class="points-badge">
               额外点:
@@ -211,10 +246,10 @@ const levelTierName = computed(() => {
               <FormStepper
                 :model-value="character.basePoints[attr]"
                 :min="0"
-                :max="MAX_BASE_POINTS_PER_ATTR"
+                :max="customMaxPerAttr"
                 :disable-increment="
                   characterStore.remainingBP <= 0 ||
-                  character.basePoints[attr] >= MAX_BASE_POINTS_PER_ATTR
+                  character.basePoints[attr] >= customMaxPerAttr
                 "
                 @increment="addBasePoint(attr)"
                 @decrement="removeBasePoint(attr)"
@@ -385,6 +420,14 @@ const levelTierName = computed(() => {
       .points-hint {
         font-size: 0.75rem;
         opacity: 0.7;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .inline-number {
+        display: inline-flex;
+        width: 70px;
+        vertical-align: middle;
       }
     }
   }
