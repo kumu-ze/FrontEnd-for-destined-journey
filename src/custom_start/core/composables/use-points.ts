@@ -12,6 +12,8 @@ interface UsePointsReturn {
   canRollPoints: ComputedRef<boolean>;
   /** Roll 新的转生点数 */
   rollPoints: () => number;
+  /** 手动设置转生点数 */
+  setPoints: (points: number) => void;
 }
 
 /**
@@ -37,9 +39,15 @@ export function usePoints(): UsePointsReturn {
     return characterStore.rollInitialPoints();
   };
 
+  // 手动设置转生点数
+  const setPoints = (points: number) => {
+    characterStore.setReincarnationPoints(points);
+  };
+
   return {
     availablePoints,
     canRollPoints,
     rollPoints,
+    setPoints,
   };
 }
